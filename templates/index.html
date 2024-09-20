@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simple Quiz Application</h1>
+    <div id="quiz-container"></div>
+    <button id="submit-btn" style="display:none;">Submit</button>
+    <div id="result"></div>
+
+    <script>
+        // Fetch the quiz questions from the backend
+        async function fetchQuiz() {
+            const response = await fetch('/quiz');
+            const quiz = await response.json();
+            return quiz;
+        }
+
+        // Render the quiz in the DOM
+        function renderQuiz(quiz) {
+            const quizContainer = document.getElementById('quiz-container');
+            quiz.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${q.question}</h3>
+                    <div class="options">
+                        ${q.options.map(option => `
+                            <label>
+                                <input type="radio" name="question${index}" value="${option}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                quizContainer.appendChild(questionDiv);
+            });
+            document.getElementById('submit-btn').style.display = 'block';
+        }
+
+        // Handle quiz submission and send answers to the backend
+        async function submitQuiz(quiz) {
+            const answers = quiz.map((_, index) => {
+                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                return selectedOption ? selectedOption.value : null;
+            });
+
+            const response = await fetch('/quiz/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ answers })
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerHTML = `Your score is ${result.score} out of ${result.total}`;
+        }
+
+        // Initialize the quiz on page load
+        window.onload = async () => {
+            const quiz = await fetchQuiz();
+            renderQuiz(quiz);
+
+            document.getElementById('submit-btn').addEventListener('click', () => submitQuiz(quiz));
+        };
+    </script>
+</body>
+</html>
