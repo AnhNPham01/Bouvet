@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
 
 function App() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [score, setScore] = useState(null);
+  const [score, setScore] = useState(0);
 
   // Fetch quiz questions from Flask backend
   useEffect(() => {
@@ -18,37 +19,28 @@ function App() {
 
   // Handle answer selection
   const handleAnswer = (option) => {
-    setAnswers([...answers, option]);
+    const updatedAnswers = [...answers, option];
+    setAnswers(updatedAnswers);
 
+    // Check if the answer is correct and update the score
+    if (option === questions[currentQuestion].correctAnswer) {
+      setScore(score + 1);
+    }
+
+    // Move to the next question or show result
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // Submit the final answers when the last question is answered
-      submitQuiz([...answers, option]);
+      // If it's the last question, show the result directly
+      setCurrentQuestion(currentQuestion + 1); // Move to the result state
     }
-  };
-
-  // Submit the quiz answers to Flask backend
-  const submitQuiz = (finalAnswers) => {
-    fetch('http://127.0.0.1:5000/quiz/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers: finalAnswers }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        setScore(data.score); // Set the score received from the backend
-      })
-      .catch(error => {
-        console.error('Error submitting quiz:', error);
-      });
   };
 
   // Reset quiz state
   const tryAgain = () => {
     setCurrentQuestion(0);
     setAnswers([]);
-    setScore(null);
+    setScore(0);
     fetch('http://127.0.0.1:5000/quiz')
       .then(response => response.json())
       .then(data => setQuestions(data))
@@ -58,11 +50,12 @@ function App() {
   };
 
   // If quiz is completed, show score
-  if (score !== null) {
+  if (currentQuestion === questions.length) {
     return (
-      <div>
+      <div className="result-container">
+        <h2 className="question">Score</h2>
         <div>Du fikk {score} av {questions.length} riktige.</div>
-        <button onClick={tryAgain}>Prøv igjen</button>
+        <button className="try-again-button" onClick={tryAgain}>Prøv igjen</button>
       </div>
     );
   }
@@ -72,16 +65,15 @@ function App() {
   }
 
   return (
-    <div>
-      <h2>Spørsmål {currentQuestion + 1} av {questions.length}</h2>
-      <h3>{questions[currentQuestion].question}</h3>
-      <div>
+    <div className="quiz-container">
+      <h2 className="question"> {currentQuestion + 1}. {questions[currentQuestion].question}</h2>
+      <ul className="options-list">
         {questions[currentQuestion].options.map((option, index) => (
-          <button key={index} onClick={() => handleAnswer(option)}>
+          <li key={index} className="option" onClick={() => handleAnswer(option)}>
             {option}
-          </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
