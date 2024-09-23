@@ -3,6 +3,29 @@ body {
   font-family: Arial, sans-serif;
   padding-top: 50px;
 }
+
+.App {
+  text-align: center;
+  position: relative;
+}
+
+.logout-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.logout-button:hover {
+  background-color: #ff1a1a;
+}
+
 .quiz-container {
   display: flex;
   flex-direction: column;
@@ -16,11 +39,19 @@ body {
   font-weight: bold;
 }
 
-.score {
-  position: absolute; /* Position it in the upper right corner */
-  top: 20px;
-  right: 20px;
-  font-size: 18px;
+.oldResults {
+  margin-top: 200px;
+}
+
+.header {
+  font-size: 30px;
+  margin: 30px;
+  font-weight: bold;
+}
+
+.text {
+  font-size: 20px;
+  margin: 20px;
 }
 
 .options-list {
@@ -54,7 +85,7 @@ body {
 }
 
 .try-again-button {
-  margin-top: 20px;
+  margin-top: 40px;
   padding: 10px 20px;
   background-color: #cc8c8c; /* Button color */
   color: white;
@@ -62,6 +93,7 @@ body {
   border-radius: 5px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor */
   transition: background-color 0.3s;
+  font-size: 16px;
 }
 
 .try-again-button:hover {

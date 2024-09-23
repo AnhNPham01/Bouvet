@@ -1,81 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Register from './components/register';
+import Login from './components/login';
+import Quiz from './components/quiz';
+import UserResults from './components/userResults';
+
 import './App.css';
 
 function App() {
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [score, setScore] = useState(0);
+    const [userId, setUserId] = useState(null); // State to hold user ID
 
-  // Fetch quiz questions from Flask backend
-  useEffect(() => {
-    fetch('http://127.0.0.1:5000/quiz')
-      .then(response => response.json())
-      .then(data => setQuestions(data))
-      .catch(error => {
-        console.error('Error fetching quiz data:', error);
-      });
-  }, []);
+    // Function to handle successful login
+    const handleLogin = (id) => {
+        setUserId(id); // Set the user ID after successful login
+    };
 
-  // Handle answer selection
-  const handleAnswer = (option) => {
-    const updatedAnswers = [...answers, option];
-    setAnswers(updatedAnswers);
+    // Function to reset user state for logout
+    const handleLogout = () => {
+        setUserId(null); // Log out the user
+    };
 
-    // Check if the answer is correct and update the score
-    if (option === questions[currentQuestion].correctAnswer) {
-      setScore(score + 1);
-    }
-
-    // Move to the next question or show result
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      // If it's the last question, show the result directly
-      setCurrentQuestion(currentQuestion + 1); // Move to the result state
-    }
-  };
-
-  // Reset quiz state
-  const tryAgain = () => {
-    setCurrentQuestion(0);
-    setAnswers([]);
-    setScore(0);
-    fetch('http://127.0.0.1:5000/quiz')
-      .then(response => response.json())
-      .then(data => setQuestions(data))
-      .catch(error => {
-        console.error('Error fetching quiz data:', error);
-      });
-  };
-
-  // If quiz is completed, show score
-  if (currentQuestion === questions.length) {
     return (
-      <div className="result-container">
-        <h2 className="question">Score</h2>
-        <div>Du fikk {score} av {questions.length} riktige.</div>
-        <button className="try-again-button" onClick={tryAgain}>Prøv igjen</button>
-      </div>
+        <div className="App">
+            {/* If the user is not logged in, show login and register forms */}
+            {!userId ? (
+                <div>
+                    <Login onLogin={handleLogin} />
+                    <Register />
+                </div>
+            ) : (
+                // If the user is logged in, show the quiz and a logout button
+                <div>
+                    {/* Add the Login button to allow logging out */}
+                    <LogoutButton onLogout={handleLogout} />
+                    <Quiz userId={userId} />
+                    <UserResults userId={userId} />
+                </div>
+            )}
+        </div>
     );
-  }
-
-  if (questions.length === 0) {
-    return <div>Laster spørsmål...</div>;
-  }
-
-  return (
-    <div className="quiz-container">
-      <h2 className="question"> {currentQuestion + 1}. {questions[currentQuestion].question}</h2>
-      <ul className="options-list">
-        {questions[currentQuestion].options.map((option, index) => (
-          <li key={index} className="option" onClick={() => handleAnswer(option)}>
-            {option}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 }
+
+// Logout button component displayed when the user is logged in
+const LogoutButton = ({ onLogout }) => {
+    return (
+        <button className="logout-button" onClick={onLogout}>
+            Logout
+        </button>
+    );
+};
 
 export default App;
