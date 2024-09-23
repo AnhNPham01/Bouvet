@@ -22,7 +22,9 @@ function Login({ onLogin }) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <div>
+            <h2 className='header'>Login</h2>
+            <form onSubmit={handleSubmit}>
             <input
                 type="text"
                 placeholder="Username"
@@ -39,6 +41,7 @@ function Login({ onLogin }) {
             />
             <button type="submit">Login</button>
         </form>
+        </div>
     );
 }
 
