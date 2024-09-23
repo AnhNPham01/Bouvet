@@ -1,35 +1,25 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-# In-memory quiz data
+# Dummy quiz data
 quiz_data = [
-    {
-        "question": "What is the tallest mountain in the world?",
-        "options": ["Himalaya", "Mt. Everest", "Galdhøpiggen", "K2"],
-        "correctAnswer": "Mt. Everest"
-    },
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Venus"],
-        "correctAnswer": "Mars"
-    }
+    {"question": "Hva er verdens høyeste fjell?", "options": ["Himalaya", "Mt. Everest", "Galdhøpiggen", "K2"], "correctAnswer": "Mt. Everest"},
+    {"question": "Hva er hovedstaden i Norge?", "options": ["Bergen", "Oslo", "Stavanger", "Trondheim"], "correctAnswer": "Oslo"},
+    {"question": "Hvilket år startet 2. verdenskrig?", "options": ["1914", "1939", "1945", "1961"], "correctAnswer": "1939"},
 ]
 
-# Serve the frontend HTML (index.html)
-@app.route('/')
-def index():
-    return render_template('index.html')
+# New route for the root URL
+@app.route('/', methods=['GET'])
+def home():
+    return "Welcome to the Quiz App Backend!"
 
-# API to get quiz questions
 @app.route('/quiz', methods=['GET'])
 def get_quiz():
-    return jsonify([{
-        'question': q['question'],
-        'options': q['options']
-    } for q in quiz_data])
+    return jsonify([{"question": q['question'], "options": q['options']} for q in quiz_data])
 
-# API to submit answers and calculate score
 @app.route('/quiz/submit', methods=['POST'])
 def submit_quiz():
     answers = request.json.get('answers')
